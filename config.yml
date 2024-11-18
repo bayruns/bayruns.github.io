@@ -71,7 +71,7 @@ params:
   # home-info mode
   homeInfoParams:
     Title: "Welcome 🦝"
-    Content: Welcome to the development journey of "One Man's Trash", a combination of the captivating chaos of "Untitled Goose Game" and the addictive progression of "Hades". Our narrative revolves around a raccoon on a mission - a heist that joyfully turns order into disarray. While bringing "One Man's Trash" to life, we'll be navigating through various twists and turns. Explore my recent posts to get a behind-the-scenes look at the game development process. As the saying goes, one man's trash is indeed another raccoon's treasure. Stay tuned for more updates and join us on this journey through chaos. Your support means the world to us. Enjoy the ride!
+    Content: Hello
 
   # socialIcons:
   #   - name: twitter
