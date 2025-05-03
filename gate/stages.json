@@ -1,0 +1,191 @@
+[
+    {
+        "instruction": "Red.",
+        "items": [
+            {
+                "image": "apple.png",
+                "correct": true
+            },
+            {
+                "label": "Blue Orb of Eternal Blueness",
+                "correct": false
+            },
+            {
+                "image": "chair.png",
+                "correct": false
+            },
+            {
+                "image": "drop.png",
+                "correct": false
+            },
+            {
+                "image": "sword.png",
+                "correct": false
+            },
+            {
+                "label": "A Blue Man",
+                "correct": false
+            },
+            {
+                "label": "A Green Man (not blue)",
+                "correct": false
+            }
+        ]
+    },
+    {
+        "instruction": "Blue.",
+        "items": [
+            {
+                "image": "apple.png",
+                "correct": false
+            },
+            {
+                "label": "Blue Orb of Eternal Blueness",
+                "correct": true
+            },
+            {
+                "label": "Blue Orb of 72 Hours of Blueness",
+                "correct": true
+            },
+            {
+                "image": "cookie.png",
+                "correct": false
+            },
+            {
+                "label": "the color brown",
+                "correct": false
+            },
+            {
+                "image": "chair.png",
+                "correct": false
+            }
+        ]
+    },
+    {
+        "instruction": "Blue.",
+        "items": [
+            {
+                "image": "apple.png",
+                "correct": false
+            },
+            {
+                "image": "thedress.jpg",
+                "correct": true
+            }
+        ]
+    },
+    {
+        "instruction": "Spelled wrong.",
+        "items": [
+            {
+                "label": "Wrong",
+                "correct": true
+            },
+            {
+                "label": "War-ax",
+                "correct": false
+            },
+            {
+                "label": "Happynes",
+                "correct": false
+            },
+            {
+                "label": "Thundor",
+                "correct": false
+            }
+        ]
+    },
+    {
+        "instruction": "Rhyme.",
+        "items": [
+            {
+                "image": "sun.png",
+                "correct": true
+            },
+            {
+                "image": "bun.png",
+                "correct": true
+            },
+            {
+                "image": "fire.png",
+                "correct": false
+            },
+            {
+                "image": "sword.png",
+                "correct": false
+            }
+        ]
+    },
+    {
+        "instruction": "Backwards and forwards.",
+        "items": [
+            {
+                "image": "noon.png",
+                "correct": true
+            },
+            {
+                "label": "Level",
+                "correct": true
+            },
+            {
+                "label": "Peep",
+                "correct": true
+            },
+            {
+                "label": "XYZYX",
+                "correct": true
+            },
+            {
+                "label": "Mom",
+                "correct": true
+            },
+            {
+                "label": "Pop",
+                "correct": true
+            },
+            {
+                "image": "stats.png",
+                "correct": true
+            },
+            {
+                "image": "apple.png",
+                "correct": false
+            },
+            {
+                "image": "crystal-ball.png",
+                "correct": false
+            }
+        ],
+        "successMessage": "✅ Symmetry detected—reflection confirmed.",
+        "failureMessage": "❌ Symmetry not detected."
+    },
+    {
+        "instruction": "ERROR. INSTRUCTION UNAVAILABLE. PLEASE SOLVE ON YOUR OWN.",
+        "items": [
+            {
+                "image": "sun.png",
+                "correct": true
+            },
+            {
+                "image": "bun.png",
+                "correct": true
+            },
+            {
+                "image": "leprechaun.png",
+                "correct": true
+            },
+            {
+                "image": "run.png",
+                "correct": true
+            },
+            {
+                "image": "fire.png",
+                "correct": false
+            },
+            {
+                "image": "sword.png",
+                "correct": false
+            }
+        ]
+    }
+]

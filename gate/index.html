@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recognition Gate</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 1rem;
+            background-color: #1e1e1e;
+            color: #f5f5f5;
+            font-family: Georgia, serif;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: #b2f7ef;
+        }
+
+        .instruction {
+            font-size: 1.2rem;
+            color: #fff3b0;
+            margin-bottom: 1rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            max-width: 600px;
+            margin: 0 auto 1rem;
+        }
+
+        .item {
+            background-color: #2e2e2e;
+            border: 2px solid #444;
+            border-radius: 4px;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .item:hover {
+            transform: scale(1.05);
+        }
+
+        .item img {
+            max-width: 80px;
+            max-height: 80px;
+            margin-bottom: 0.5rem;
+        }
+
+        .item.selected {
+            background-color: #264653;
+            border-color: #80ed99;
+        }
+
+        .submit-button,
+        .next-button {
+            background-color: #0077b6;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            margin: 0.5rem;
+            max-width: 200px;
+            width: 100%;
+        }
+
+        .result {
+            margin-top: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            color: #80ed99;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-family: Georgia, serif;
+            text-align: center;
+            padding: 1rem;
+            z-index: 1000;
+        }
+
+        .overlay.show {
+            display: flex;
+        }
+
+        @media (max-width:480px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .instruction {
+                font-size: 1rem;
+            }
+
+            .item {
+                padding: 0.75rem;
+            }
+
+            .item img {
+                max-width: 60px;
+                max-height: 60px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Recognition Gate</h1>
+    <div class="instruction" id="instruction"></div>
+    <div class="grid" id="grid"></div>
+    <button class="submit-button" id="submitBtn" style="display:none;">Submit</button>
+    <button class="next-button" id="nextBtn" style="display:none;">Next</button>
+    <div class="result" id="result"></div>
+    <div class="overlay" id="overlay">🎉 Access granted, sentient being...<br>Gate opening</div>
+    <script>
+        let stages = [];
+        let currentStage = 0;
+        const instructionEl = document.getElementById('instruction');
+        const gridEl = document.getElementById('grid');
+        const submitBtn = document.getElementById('submitBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const resultEl = document.getElementById('result');
+        const overlayEl = document.getElementById('overlay');
+
+        // shuffle helper
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // load stages
+        fetch('stages.json')
+            .then(res => res.json())
+            .then(data => {
+                stages = data;
+                submitBtn.style.display = 'inline-block';
+                loadStage(0);
+            })
+            .catch(err => {
+                resultEl.innerText = '⚠️ Unable to load puzzle.';
+                resultEl.style.color = '#ff6b6b';
+            });
+
+        function loadStage(idx) {
+            const stage = stages[idx];
+            instructionEl.innerText = stage.instruction || '';
+            resultEl.innerText = '';
+            gridEl.innerHTML = '';
+
+            const items = shuffle([...stage.items]);
+            items.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'item';
+                div.dataset.answer = item.correct;
+                if (item.image) {
+                    const img = document.createElement('img');
+                    img.src = item.image;
+                    img.alt = item.label || '';
+                    div.appendChild(img);
+                }
+                if (item.label) {
+                    const span = document.createElement('span');
+                    span.innerText = item.label;
+                    div.appendChild(span);
+                }
+                div.addEventListener('click', () => div.classList.toggle('selected'));
+                gridEl.appendChild(div);
+            });
+
+            submitBtn.style.display = 'inline-block';
+            nextBtn.style.display = 'none';
+        }
+
+        function checkAnswers() {
+            const stage = stages[currentStage];
+            const items = document.querySelectorAll('.item');
+            let correct = true;
+            items.forEach(item => {
+                const isAnswer = item.dataset.answer === 'true';
+                const isSelected = item.classList.contains('selected');
+                if (isAnswer !== isSelected) correct = false;
+            });
+            if (correct) {
+                if (currentStage === stages.length - 1) {
+                    overlayEl.classList.add('show');
+                } else {
+                    resultEl.innerText = stage.successMessage || '✅ Correct. Proceed to the next stage.';
+                    resultEl.style.color = '#80ed99';
+                    submitBtn.style.display = 'none';
+                    nextBtn.style.display = 'inline-block';
+                }
+            } else {
+                resultEl.innerText = stage.failureMessage || '❌ Incorrect, please try again.';
+                resultEl.style.color = '#ff6b6b';
+            }
+        }
+
+        submitBtn.addEventListener('click', checkAnswers);
+        nextBtn.addEventListener('click', () => {
+            currentStage++;
+            loadStage(currentStage);
+        });
+    </script>
+</body>
+
+</html>
