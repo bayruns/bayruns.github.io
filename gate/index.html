@@ -12,11 +12,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Uncial+Antiqua&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
     <style>
         * {
             font-family: 'Uncial Antiqua', serif;
-            /* font-family: "MedievalSharp", cursive; */
             text-shadow: 0 0 6px #d4b6ff;
         }
 
@@ -25,8 +23,6 @@
             padding: 1rem;
             background-image: url('gate-texture.png');
             background-repeat: repeat;
-            background-position: 0 0;
-            background-size: auto;
             color: #f5f5f5;
             display: flex;
             justify-content: center;
@@ -35,14 +31,15 @@
         }
 
         .puzzle-panel {
-            background-color: rgb(59 59 218 / 40%);
+            background-color: rgba(59, 59, 218, 0.4);
             padding: 2rem;
             border: 2px outset #9370DB;
             border-radius: 10px;
-            box-shadow: 0px 0px 60px 20px rgb(122 89 255 / 65%);
+            box-shadow: 0 0 60px 20px rgba(122, 89, 255, 0.65);
             max-width: 600px;
             width: 90%;
             text-align: center;
+            position: relative;
         }
 
         h1 {
@@ -53,9 +50,10 @@
         }
 
         .instruction {
-            font-size: 1.2rem;
+            font-size: 1.5rem;
             color: #fff3b0;
             margin-bottom: 1rem;
+            height: 65px;
         }
 
         .grid {
@@ -66,7 +64,7 @@
         }
 
         .item {
-            background-color: #bb7fff4d;
+            background-color: rgba(187, 127, 255, 0.3);
             border: 2px outset #9370DB;
             border-radius: 6px;
             padding: 1rem;
@@ -75,7 +73,6 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.2s;
             aspect-ratio: 1 / 1;
         }
 
@@ -95,13 +92,12 @@
         }
 
         .item.selected {
-            background-color: #2471ff42;
+            background-color: rgba(36, 113, 255, 0.26);
             border: 2px inset #2c42ff;
         }
 
-        .submit-button,
-        .next-button {
-            background-color: #b045ff42;
+        .submit-button {
+            background-color: rgba(176, 69, 255, 0.26);
             color: #E6E6FA;
             border: 2px outset #4601d4;
             border-radius: 6px;
@@ -112,37 +108,73 @@
             transition: box-shadow 0.2s;
             width: 45%;
             max-width: 200px;
+            display: block;
         }
 
-        .submit-button:hover,
-        .next-button:hover {
-            box-shadow: 0 0 10px 10px #ca00ff42;
+        .submit-button:hover {
+            box-shadow: 0 0 10px 10px rgba(202, 0, 255, 0.26);
         }
 
-        .result {
-            margin-top: 1rem;
-            font-size: 1.1rem;
+        /* green flash */
+        @keyframes flashGreen {
+
+            0%,
+            100% {
+                background-color: rgba(59, 59, 218, 0.4);
+                border: 2px outset #9370DB;
+                box-shadow: 0 0 60px 20px rgba(122, 89, 255, 0.65);
+            }
+
+            50% {
+                box-shadow: 0 0 20px #80ed99;
+                background-color: #80ed9984;
+                border: 2px outset #80ed99;
+            }
         }
 
-        .overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.85);
-            color: #80ed99;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            text-align: center;
-            padding: 1rem;
-            z-index: 1000;
+        /* red flash */
+        @keyframes flashRed {
+
+            0%,
+            100% {
+                background-color: rgba(59, 59, 218, 0.4);
+                border: 2px outset #9370DB;
+                box-shadow: 0 0 60px 20px rgba(122, 89, 255, 0.65);
+            }
+
+            50% {
+                box-shadow: 0 0 20px #ff6b6b;
+                background-color: #ff6b6b8a;
+                border: 2px outset #ff6b6b;
+            }
         }
 
-        .overlay.show {
-            display: flex;
+        .flash-green {
+            animation: flashGreen 1s ease-in-out 1;
+        }
+
+        .flash-red {
+            animation: flashRed 1s ease-in-out 1;
+        }
+
+        /* complete animation */
+        @keyframes panelComplete {
+            0% {
+                background-color: rgba(59, 59, 218, 0.4);
+                opacity: 1;
+            }
+
+            50% {
+                background-color: rgba(0, 128, 0, 0.7);
+            }
+
+            100% {
+                opacity: 0;
+            }
+        }
+
+        .complete {
+            animation: panelComplete 2s ease-in-out forwards;
         }
 
         @media (max-width:480px) {
@@ -155,7 +187,7 @@
             }
 
             .instruction {
-                font-size: 1rem;
+                font-size: 1.5rem;
             }
 
             .item {
@@ -171,26 +203,19 @@
 </head>
 
 <body>
-    <div class="puzzle-panel">
-        <h1>Recognition Gate</h1>
+    <div class="puzzle-panel" id="panel">
+        <!-- <h1>Recognition Gate</h1> -->
         <div class="instruction" id="instruction"></div>
         <div class="grid" id="grid"></div>
-        <div>
-            <button class="submit-button" id="submitBtn" style="display:none;">Submit</button>
-            <button class="next-button" id="nextBtn" style="display:none;">Next</button>
-        </div>
-        <div class="result" id="result"></div>
+        <button class="submit-button" id="submitBtn" style="display:none;">Submit</button>
     </div>
-    <div class="overlay" id="overlay">🎉 Access granted, sentient being...<br>Gate opening</div>
     <script>
         let stages = [];
         let currentStage = 0;
+        const panel = document.getElementById('panel');
         const instructionEl = document.getElementById('instruction');
         const gridEl = document.getElementById('grid');
         const submitBtn = document.getElementById('submitBtn');
-        const nextBtn = document.getElementById('nextBtn');
-        const resultEl = document.getElementById('result');
-        const overlayEl = document.getElementById('overlay');
 
         function shuffle(array) {
             for (let i = array.length - 1; i > 0; i--) {
@@ -202,73 +227,53 @@
 
         fetch('stages.json')
             .then(res => res.json())
-            .then(data => {
-                stages = data;
-                submitBtn.style.display = 'inline-block';
-                loadStage(0);
-            })
-            .catch(err => {
-                resultEl.innerText = '⚠️ Unable to load puzzle.';
-                resultEl.style.color = '#ff6b6b';
-            });
+            .then(data => { stages = data; submitBtn.style.display = 'inline-block'; loadStage(0); });
 
         function loadStage(idx) {
             const stage = stages[idx];
             instructionEl.innerText = stage.instruction || '';
-            resultEl.innerText = '';
             gridEl.innerHTML = '';
-            const items = shuffle([...stage.items]);
-            items.forEach(item => {
+            shuffle(stage.items).forEach(item => {
                 const div = document.createElement('div');
-                div.className = 'item';
-                div.dataset.answer = item.correct;
-                if (item.image) {
-                    const img = document.createElement('img');
-                    img.src = item.image;
-                    img.alt = item.label || '';
-                    div.appendChild(img);
-                }
-                if (item.label) {
-                    const span = document.createElement('span');
-                    span.innerText = item.label;
-                    div.appendChild(span);
-                }
+                div.className = 'item'; div.dataset.answer = item.correct;
+                if (item.image) { const img = document.createElement('img'); img.src = item.image; img.alt = item.label || ''; div.appendChild(img); }
+                if (item.label) { const span = document.createElement('span'); span.innerText = item.label; div.appendChild(span); }
                 div.addEventListener('click', () => div.classList.toggle('selected'));
                 gridEl.appendChild(div);
             });
-            submitBtn.style.display = 'inline-block';
-            nextBtn.style.display = 'none';
         }
 
         function checkAnswers() {
-            const stage = stages[currentStage];
+            if (panel.classList.contains('flash-green') || panel.classList.contains('flash-red')) return;
+
+            submitBtn.style.visibility = 'hidden';
+
             const items = document.querySelectorAll('.item');
-            let correct = true;
-            items.forEach(item => {
-                const isAnswer = item.dataset.answer === 'true';
-                const isSelected = item.classList.contains('selected');
-                if (isAnswer !== isSelected) correct = false;
-            });
-            if (correct) {
-                if (currentStage === stages.length - 1) {
-                    overlayEl.classList.add('show');
-                } else {
-                    resultEl.innerText = stage.successMessage || '✅ Correct. Proceed to the next stage.';
-                    resultEl.style.color = '#80ed99';
-                    submitBtn.style.display = 'none';
-                    nextBtn.style.display = 'inline-block';
-                }
-            } else {
-                resultEl.innerText = stage.failureMessage || '❌ Incorrect, please try again.';
-                resultEl.style.color = '#ff6b6b';
+            const correct = Array.from(items).every(i => (i.dataset.answer === 'true') === i.classList.contains('selected'));
+            if (!correct) {
+                panel.classList.add('flash-red');
+                panel.addEventListener('animationend', () => {
+                    panel.classList.remove('flash-red'), { once: true };
+                    submitBtn.style.visibility = 'visible';
+
+                });
+
+                return;
             }
+            // correct
+            panel.classList.add('flash-green');
+            panel.addEventListener('animationend', () => {
+                submitBtn.style.visibility = 'visible';
+                panel.classList.remove('flash-green');
+                if (currentStage < stages.length - 1) {
+                    currentStage++; loadStage(currentStage);
+                } else {
+                    panel.classList.add('complete');
+                }
+            }, { once: true });
         }
 
         submitBtn.addEventListener('click', checkAnswers);
-        nextBtn.addEventListener('click', () => {
-            currentStage++;
-            loadStage(currentStage);
-        });
     </script>
 </body>
 

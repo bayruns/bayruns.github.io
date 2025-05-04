@@ -23,32 +23,28 @@
                 "correct": false
             },
             {
-                "label": "A Blue Man",
-                "correct": false
-            },
-            {
-                "label": "A Green Man (not blue)",
+                "label": "A Green Man",
                 "correct": false
             }
         ]
     },
     {
-        "instruction": "Blue.",
+        "instruction": "Green.",
         "items": [
             {
-                "image": "apple.png",
+                "image": "sun.png",
                 "correct": false
             },
             {
-                "label": "Blue Orb of Eternal Blueness",
+                "label": "Green Orb of Eternal Greenness",
                 "correct": true
             },
             {
-                "label": "Blue Orb of 72 Hours of Blueness",
+                "label": "Green Orb of 4 Hours of Greenness",
                 "correct": true
             },
             {
-                "image": "cookie.png",
+                "image": "crystal-ball.png",
                 "correct": false
             },
             {
@@ -56,7 +52,7 @@
                 "correct": false
             },
             {
-                "image": "chair.png",
+                "image": "fire.png",
                 "correct": false
             }
         ]
@@ -71,6 +67,22 @@
             {
                 "image": "thedress.jpg",
                 "correct": true
+            },
+            {
+                "image": "sapphire.png",
+                "correct": true
+            },
+            {
+                "label": "Blueberries",
+                "correct": true
+            },
+            {
+                "label": "Potion of Healing",
+                "correct": false
+            },
+            {
+                "image": "leprechaun.png",
+                "correct": false
             }
         ]
     },
@@ -82,7 +94,15 @@
                 "correct": true
             },
             {
-                "label": "War-ax",
+                "label": "Axe",
+                "correct": false
+            },
+            {
+                "label": "Evil",
+                "correct": false
+            },
+            {
+                "label": "Incorrectly",
                 "correct": false
             },
             {
@@ -113,6 +133,14 @@
             {
                 "image": "sword.png",
                 "correct": false
+            },
+            {
+                "label": "Orange",
+                "correct": false
+            },
+            {
+                "label": "Purple",
+                "correct": false
             }
         ]
     },
@@ -140,17 +168,13 @@
                 "correct": true
             },
             {
-                "image": "apple.png",
-                "correct": false
-            },
-            {
                 "image": "crystal-ball.png",
                 "correct": false
             }
         ]
     },
     {
-        "instruction": "ERROR. INSTRUCTION UNAVAILABLE. PLEASE SOLVE ON YOUR OWN.",
+        "instruction": "ERROR. INSTRUCTION UNAVAILABLE.",
         "items": [
             {
                 "image": "sun.png",
