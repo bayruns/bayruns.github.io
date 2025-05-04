@@ -1,5 +1,9 @@
 [
     {
+        "instruction": "<p><strong>Welcome, visitor.</strong></p><p>To pass beyond the <em>Recognition Gate</em>, you must complete this</p><div style='text-align:left; display:inline-block; margin: 0 auto;'><p><em>C&nbsp;&nbsp;</em>ognitive<br><em>A&nbsp;&nbsp;</em>ssessment<br><em>P&nbsp;&nbsp;</em>rotocol<br><em>T&nbsp;&nbsp;</em>hwarting<br><em>C&nbsp;&nbsp;</em>onstructed<br><em>H&nbsp;&nbsp;</em>ostile<br><em>A&nbsp;&nbsp;</em>utomatons</p></div><p>Please verify your sentience to proceed.</p>",
+        "items": []
+    },
+    {
         "instruction": "Red.",
         "items": [
             {
@@ -48,8 +52,8 @@
                 "correct": false
             },
             {
-                "label": "the color brown",
-                "correct": false
+                "image": "leprechaun.png",
+                "correct": true
             },
             {
                 "image": "fire.png",
@@ -81,7 +85,7 @@
                 "correct": false
             },
             {
-                "image": "leprechaun.png",
+                "image": "cookie.png",
                 "correct": false
             }
         ]
@@ -201,5 +205,9 @@
                 "correct": false
             }
         ]
+    },
+    {
+        "instruction": "<p><strong>Access granted.</strong></p><p>Please confirm to open gate.</p>",
+        "items": []
     }
 ]

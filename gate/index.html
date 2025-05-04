@@ -12,9 +12,13 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Uncial+Antiqua&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&family=Metamorphous&display=swap"
+        rel="stylesheet">
     <style>
         * {
             font-family: 'Uncial Antiqua', serif;
+            font-family: "Metamorphous", serif;
+
             text-shadow: 0 0 6px #d4b6ff;
         }
 
@@ -53,7 +57,7 @@
             font-size: 1.5rem;
             color: #fff3b0;
             margin-bottom: 1rem;
-            height: 65px;
+            min-height: 65px;
         }
 
         .grid {
@@ -111,8 +115,21 @@
             display: block;
         }
 
+        .submit-button.incorrect-hidden {
+            visibility: hidden;
+        }
+
+        .submit-button.submitting-currently {
+            visibility: hidden;
+        }
+
         .submit-button:hover {
             box-shadow: 0 0 10px 10px rgba(202, 0, 255, 0.26);
+        }
+
+        .incorrect-message {
+            display: block;
+            height: 20px;
         }
 
         /* green flash */
@@ -204,18 +221,21 @@
 
 <body>
     <div class="puzzle-panel" id="panel">
-        <!-- <h1>Recognition Gate</h1> -->
         <div class="instruction" id="instruction"></div>
         <div class="grid" id="grid"></div>
-        <button class="submit-button" id="submitBtn" style="display:none;">Submit</button>
+        <button class="submit-button" id="submitBtn" style="display:none;">Begin</button>
+        <div class="incorrect-message" id="incorrectMessage"></div>
     </div>
     <script>
         let stages = [];
         let currentStage = 0;
+        const delays = [0, 5, 10, 15, 30, 60];
+        let incorrectCount = 0;
         const panel = document.getElementById('panel');
         const instructionEl = document.getElementById('instruction');
         const gridEl = document.getElementById('grid');
         const submitBtn = document.getElementById('submitBtn');
+        const incorrectMessage = document.getElementById('incorrectMessage');
 
         function shuffle(array) {
             for (let i = array.length - 1; i > 0; i--) {
@@ -231,7 +251,7 @@
 
         function loadStage(idx) {
             const stage = stages[idx];
-            instructionEl.innerText = stage.instruction || '';
+            instructionEl.innerHTML = stage.instruction || '';
             gridEl.innerHTML = '';
             shuffle(stage.items).forEach(item => {
                 const div = document.createElement('div');
@@ -246,15 +266,35 @@
         function checkAnswers() {
             if (panel.classList.contains('flash-green') || panel.classList.contains('flash-red')) return;
 
-            submitBtn.style.visibility = 'hidden';
+            submitBtn.classList.add('submitting-currently');
 
             const items = document.querySelectorAll('.item');
             const correct = Array.from(items).every(i => (i.dataset.answer === 'true') === i.classList.contains('selected'));
             if (!correct) {
+                incorrectCount++;
+                const delay = delays[Math.min(incorrectCount, delays.length - 1)];
+                submitBtn.classList.add('incorrect-hidden');
+                incorrectMessage.innerText = `Incorrect! Try again in ${delay} seconds.`;
+
+                //update the text every second
+                let countdown = delay;
+                const interval = setInterval(() => {
+                    countdown--;
+                    incorrectMessage.innerText = `Incorrect! Try again in ${countdown} seconds.`;
+                    if (countdown <= 0) {
+                        clearInterval(interval);
+                    }
+                }, 1000);
+                // show the button after the delay
+                setTimeout(() => {
+                    submitBtn.classList.remove('incorrect-hidden');
+                    incorrectMessage.innerText = ``;
+                }, delay * 1000);
+
                 panel.classList.add('flash-red');
                 panel.addEventListener('animationend', () => {
                     panel.classList.remove('flash-red'), { once: true };
-                    submitBtn.style.visibility = 'visible';
+                    submitBtn.classList.remove('submitting-currently');
 
                 });
 
@@ -263,9 +303,14 @@
             // correct
             panel.classList.add('flash-green');
             panel.addEventListener('animationend', () => {
-                submitBtn.style.visibility = 'visible';
                 panel.classList.remove('flash-green');
+                if (currentStage == stages.length - 2) {
+                    submitBtn.innerText = "I am not a robot";
+                } else {
+                    submitBtn.innerText = "Submit";
+                }
                 if (currentStage < stages.length - 1) {
+                    submitBtn.classList.remove('submitting-currently');
                     currentStage++; loadStage(currentStage);
                 } else {
                     panel.classList.add('complete');
