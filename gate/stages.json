@@ -132,14 +132,6 @@
                 "correct": true
             },
             {
-                "label": "XYZYX",
-                "correct": true
-            },
-            {
-                "label": "Mom",
-                "correct": true
-            },
-            {
                 "label": "Pop",
                 "correct": true
             },
@@ -155,9 +147,7 @@
                 "image": "crystal-ball.png",
                 "correct": false
             }
-        ],
-        "successMessage": "✅ Symmetry detected—reflection confirmed.",
-        "failureMessage": "❌ Symmetry not detected."
+        ]
     },
     {
         "instruction": "ERROR. INSTRUCTION UNAVAILABLE. PLEASE SOLVE ON YOUR OWN.",
