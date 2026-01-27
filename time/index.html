@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TZ Convert</title>
+
+    <!-- Moment + Moment Timezone -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.45/moment-timezone-with-data-10-year-range.min.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        font-family:
+          system-ui,
+          -apple-system,
+          Segoe UI,
+          Roboto,
+          Arial,
+          sans-serif;
+      }
+      .wrap {
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+      }
+      .box {
+        width: min(700px, 100%);
+        display: grid;
+        gap: 12px;
+      }
+      input,
+      select,
+      button {
+        font: inherit;
+        padding: 10px 12px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        width: 100%;
+        box-sizing: border-box;
+      }
+      .row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      button {
+        cursor: pointer;
+      }
+      .out {
+        padding: 10px 12px;
+        border: 1px solid #eee;
+        border-radius: 8px;
+        min-height: 44px;
+      }
+      .err {
+        color: #b00020;
+      }
+      .mono {
+        font-family:
+          ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+          "Liberation Mono", "Courier New", monospace;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="box">
+        <input
+          id="timeInput"
+          placeholder='Paste time (e.g. "2026-01-27 14:30", "1/27/2026 2:30pm", "now")'
+        />
+
+        <div class="row">
+          <select id="fromTz"></select>
+          <select id="toTz"></select>
+        </div>
+
+        <button id="convertBtn">Convert</button>
+
+        <div id="output" class="out mono"></div>
+      </div>
+    </div>
+
+    <script>
+      const TZS = [
+        { value: "America/New_York", label: "America/New_York (ET)" },
+        { value: "UTC", label: "UTC" },
+        { value: "America/Chicago", label: "America/Chicago" },
+        { value: "America/Denver", label: "America/Denver" },
+        { value: "America/Los_Angeles", label: "America/Los_Angeles" },
+        { value: "Etc/GMT+5", label: "Fixed EST (UTC-5)" }, // IANA sign is reversed
+        { value: "Etc/GMT+4", label: "Fixed EDT (UTC-4)" },
+        { value: "Europe/London", label: "Europe/London" },
+        { value: "Europe/Paris", label: "Europe/Paris" },
+        { value: "Asia/Tokyo", label: "Asia/Tokyo" },
+      ];
+
+      const $ = (id) => document.getElementById(id);
+
+      const inputEl = $("timeInput");
+      const fromEl = $("fromTz");
+      const toEl = $("toTz");
+      const outEl = $("output");
+      const btnEl = $("convertBtn");
+
+      function fill(select, defaultValue) {
+        select.innerHTML = "";
+        for (const tz of TZS) {
+          const o = document.createElement("option");
+          o.value = tz.value;
+          o.textContent = tz.label;
+          select.appendChild(o);
+        }
+        select.value = defaultValue;
+      }
+
+      fill(fromEl, "America/New_York");
+      fill(toEl, "UTC");
+
+      function parseFlexible(input, fromTz) {
+        const sRaw = (input || "").trim();
+        if (!sRaw) return null;
+
+        if (sRaw.toLowerCase() === "now") return moment.tz(fromTz);
+
+        // unix seconds: @1700000000 or 1700000000
+        const unixSec = sRaw.match(/^@?(\d{10})$/);
+        if (unixSec) return moment.unix(Number(unixSec[1])).tz(fromTz);
+
+        // unix ms: 1700000000000
+        const unixMs = sRaw.match(/^(\d{13})$/);
+        if (unixMs) return moment(Number(unixMs[1])).tz(fromTz);
+
+        // Normalize a couple annoying-but-common human formats:
+        // - allow commas between parts: "Dec 17, 2025, 8:46 AM EST"
+        // - tolerate extra spaces
+        const s = sRaw
+          .replace(/\s+/g, " ")
+          .replace(/,\s*(?=\d{1,2}:\d{2})/g, " "); // remove comma before time
+
+        // Detect if a 4-digit year exists
+        const hasYear = /\b(19|20)\d{2}\b/.test(s);
+
+        // If the string includes an explicit offset/Z, Moment can parse it and it’s already absolute.
+        // Also treat trailing tz abbreviations (EST, EDT, PST, etc) as "has offset-ish" and parse directly.
+        const hasOffset =
+          /[zZ]|([+-]\d{2}:?\d{2})/.test(s) || /\b[A-Z]{2,5}\b/.test(s); // catches EST/EDT/GMT/UTC etc (moment will try)
+
+        // Formats:
+        // - keep all your previous ones
+        // - add variants that include tz abbreviations and/or missing year
+        const formats = [
+          moment.ISO_8601,
+
+          // Your originals
+          "YYYY-MM-DD HH:mm",
+          "YYYY-MM-DD HH:mm:ss",
+          "YYYY-MM-DD h:mma",
+          "YYYY-MM-DD h:mm a",
+          "M/D/YYYY h:mma",
+          "M/D/YYYY h:mm a",
+          "M/D/YYYY H:mm",
+          "M/D/YYYY",
+          "MMM D, YYYY h:mm a",
+          "ddd, D MMM YYYY HH:mm:ss [GMT]",
+
+          // Add: human month formats with TZ
+          "MMM D, YYYY, h:mm A z",
+          "MMM D, YYYY h:mm A z",
+          "MMM D, YYYY, h:mm A",
+          "MMM D, YYYY h:mm A",
+
+          // Add: no-year variants (we’ll inject year after parsing)
+          "MMM D, h:mm A z",
+          "MMM D h:mm A z",
+          "MMM D, h:mm A",
+          "MMM D h:mm A",
+
+          // Add: common numeric no-year variants
+          "M/D h:mma",
+          "M/D h:mm a",
+          "M/D H:mm",
+        ];
+
+        let m;
+
+        if (hasOffset) {
+          // Parse as absolute if it has offset/tz info, otherwise best-effort
+          m = moment(s, formats, true);
+          if (!m.isValid()) m = moment(s);
+        } else {
+          // Interpret as being in fromTz
+          m = moment.tz(s, formats, true, fromTz);
+          if (!m.isValid()) m = moment.tz(s, fromTz);
+        }
+
+        if (!m.isValid()) return null;
+
+        // If year was missing, assume current year *in the source timezone*
+        if (!hasYear) {
+          const nowInFromTz = moment.tz(fromTz);
+          m.year(nowInFromTz.year());
+        }
+
+        return m;
+      }
+      function convert() {
+        const fromTz = fromEl.value;
+        const toTz = toEl.value;
+        const raw = inputEl.value;
+
+        const m = parseFlexible(raw, fromTz);
+        if (!m || !m.isValid()) {
+          outEl.classList.add("err");
+          outEl.textContent = "Couldn’t parse that date/time.";
+          return;
+        }
+
+        const out = m.clone().tz(toTz);
+
+        outEl.classList.remove("err");
+        outEl.textContent =
+          out.format("YYYY-MM-DD HH:mm:ss") + "  (" + toTz + ")";
+      }
+
+      btnEl.addEventListener("click", convert);
+      inputEl.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") convert();
+      });
+
+      // nice default
+      inputEl.value = "now";
+      convert();
+    </script>
+  </body>
+</html>
